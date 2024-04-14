@@ -61,6 +61,34 @@ public class AccountRepository : IAccountRepository
         return accountDto;
     }
 
+    public async Task<string> loginUser(LoginDto loginDto)
+    {
+        User userDb = await _dataContext.Users.FirstOrDefaultAsync(user => user.Email == loginDto.Email);
+    
+
+        if (userDb == null)
+        {
+            return "Usuario no encontrado";
+        }
+        using var hmac = new HMACSHA512(userDb.PasswordSalt);
+        
+        
+        byte[] passwordHashUser = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
+
+        if (passwordHashUser.SequenceEqual(userDb.PasswordHash))
+        {
+            return "Inicio de sesión exitoso";
+        }
+        else
+        {
+            return "Contraseña incorrecta";
+        }
+    }
+
+
+    
+
+
     public async Task<bool> SaveChangesAsync()
     {
         return 0 < await _dataContext.SaveChangesAsync();

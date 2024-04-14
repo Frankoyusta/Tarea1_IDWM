@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using courses_dotnet_api.Src.Data;
 using courses_dotnet_api.Src.DTOs.Account;
 using courses_dotnet_api.Src.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -36,5 +38,23 @@ public class AccountController : BaseApiController
         AccountDto? accountDto = await _accountRepository.GetAccountAsync(registerDto.Email);
 
         return TypedResults.Ok(accountDto);
+    }
+
+    [HttpPost("login")]
+    public async Task<IResult> login(LoginDto loginDto)
+    {
+        AccountDto? accountDto = await _accountRepository.GetAccountAsync(loginDto.Email);
+
+        if (accountDto == null)
+        {
+            return TypedResults.BadRequest("Usuario no existente");
+        }
+
+        var response = await _accountRepository.loginUser(loginDto);
+
+        return TypedResults.Ok(response);
+
+
+
     }
 }
